@@ -8,7 +8,7 @@ with ss as
       store
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date) 
-                  and (cast('1998-08-04' as date) +  30 ) 
+                  and (cast('1998-08-04' as date) + interval 30 day) 
        and ss_store_sk = s_store_sk
  group by s_store_sk)
  ,
@@ -21,7 +21,7 @@ with ss as
       store
  where sr_returned_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 )
+                  and (cast('1998-08-04' as date) + interval 30 day)
        and sr_store_sk = s_store_sk
  group by s_store_sk), 
  cs as
@@ -32,18 +32,18 @@ with ss as
       date_dim
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 )
+                  and (cast('1998-08-04' as date) + interval 30 day)
  group by cs_call_center_sk 
  ), 
  cr as
- (select cr_call_center_sk
+ (select cr_call_center_sk,
          sum(cr_return_amount) as returns,
          sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
  where cr_returned_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 )
+                  and (cast('1998-08-04' as date) + interval 30 day)
  group by cr_call_center_sk), 
  ws as
  ( select wp_web_page_sk,
@@ -54,7 +54,7 @@ with ss as
       web_page
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 )
+                  and (cast('1998-08-04' as date) + interval 30 day)
        and ws_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk), 
  wr as
@@ -66,7 +66,7 @@ with ss as
       web_page
  where wr_returned_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 )
+                  and (cast('1998-08-04' as date) + interval 30 day)
        and wr_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk)
  ,
