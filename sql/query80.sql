@@ -12,7 +12,7 @@ with ssr as
      promotion
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date) 
-                  and (cast('1998-08-04' as date) +  30 days)
+                  and (cast('1998-08-04' as date) +  30 )
        and ss_store_sk = s_store_sk
        and ss_item_sk = i_item_sk
        and i_current_price > 50
@@ -33,7 +33,7 @@ with ssr as
      promotion
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 days)
+                  and (cast('1998-08-04' as date) +  30 )
         and cs_catalog_page_sk = cp_catalog_page_sk
        and cs_item_sk = i_item_sk
        and i_current_price > 50
@@ -54,14 +54,16 @@ group by cp_catalog_page_id)
      promotion
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('1998-08-04' as date)
-                  and (cast('1998-08-04' as date) +  30 days)
+                  and (cast('1998-08-04' as date) +  30 )
         and ws_web_site_sk = web_site_sk
        and ws_item_sk = i_item_sk
        and i_current_price > 50
        and ws_promo_sk = p_promo_sk
        and p_channel_tv = 'N'
 group by web_site_id)
-  select  channel
+,
+results as
+ (select channel
         , id
         , sum(sales) as sales
         , sum(returns) as returns
@@ -88,9 +90,21 @@ group by web_site_id)
         , profit
  from   wsr
  ) x
- group by rollup (channel, id)
- order by channel
-         ,id
+ group by channel, id)
+ 
+  select  channel
+        , id
+        , sales
+        , returns
+        , profit
+ from (
+   select channel, id, sales, returns, profit from  results
+   union
+   select channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results group by channel
+   union
+   select NULL AS channel, NULL AS id, sum(sales) as sales, sum(returns) as returns, sum(profit) as profit from  results
+ ) foo
+ order by channel, id
  limit 100;
 
 -- end query 1 in stream 0 using template query80.tpl
